@@ -13,3 +13,6 @@ TripMate - multi agent travel partner
 3. install requirements
 
     >> pip install -r requirements.txt
+
+4. >> uv pip compile pyproject.toml -o requirements.txt
+   >> uv run fastapi dev main.py 
