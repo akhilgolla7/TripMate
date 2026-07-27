@@ -2,17 +2,20 @@
 TripMate - multi agent travel partner
 
 ## How to run
-1. Create the virtual env
+###### Create the virtual env
 
-    >> conda create -n travel python=3.14 -y
+- conda create -n travel python=3.14 -y
 
-2. Acivate the Environment
+###### Acivate the Environment
 
-    >> conda activate travel
+- conda activate travel
 
-3. install requirements
+##### install requirements
 
-    >> pip install -r requirements.txt
+- pip install -r requirements.txt
 
 4. >> uv pip compile pyproject.toml -o requirements.txt
    >> uv run fastapi dev main.py 
+
+#### Render
+ - uv run uvicorn main:app --host 0.0.0.0 --port $PORT
