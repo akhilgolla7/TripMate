@@ -10,13 +10,34 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-from backend import run_travel_agent
+from backend import init_graph, run_travel_agent
+
+from contextlib import asynccontextmanager
+
+# this allows nested event loops to run in the same thread, which is useful for running async code in FastAPI
+# import nest_asyncio
+# nest_asyncio.apply()
 
 BASE_DIR = Path(__file__).resolve().parent
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Starting TripMate initialization")
+
+    database_url = os.environ["DATABASE_URL"]
+
+    await init_graph(database_url)
+
+    print("✅ TripMate initialization completed")
+
+    yield
+
+    print("TripMate shutting down")
+
 app = FastAPI(title="TripMate", 
               description="Your Travel Assistant", 
-              version="1.0.0")
+              version="1.0.0",
+               lifespan=lifespan)
 
 app.mount("/static", 
           StaticFiles(directory=str(BASE_DIR / "static")), 
@@ -57,7 +78,7 @@ async def travel_planner(request: Request):
         if not user_input:
             return JSONResponse(content={"error": "User input is required"}, status_code=400)
 
-        response = run_travel_agent(
+        response = await run_travel_agent(
             user_input=user_input,
             thread_id=thread_id
         )

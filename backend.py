@@ -4,11 +4,13 @@ from typing import TypedDict, Annotated, cast
 import operator
 import uuid
 
-from psycopg import Connection
+# from psycopg import Connection
+from psycopg import AsyncConnection
 from psycopg.rows import dict_row, DictRow
 
 from langgraph.graph import StateGraph, START, END
-from langgraph.checkpoint.postgres import PostgresSaver
+# from langgraph.checkpoint.postgres import PostgresSaver
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langchain_core.messages import (
     AnyMessage,
     HumanMessage,
@@ -18,8 +20,10 @@ from langchain_core.messages import (
 from langchain_groq import ChatGroq
 from pydantic import SecretStr
 
-from tools.tavily_tool import tavily_search
+# from tools.tavily_tool import tavily_search
 from tools.flight_tool import search_flights
+from mcp_client_test import run_tavily_mcp_search
+import asyncio
 
 from langchain_core.runnables import RunnableConfig
 
@@ -75,9 +79,10 @@ def flight_agent(state: TravelState):
         "llm_calls": state["llm_calls"] + 1
     }
 
-def hotel_agent(state: TravelState):
+async def hotel_agent(state: TravelState):
     query = state["user_query"]
-    hotel_data = tavily_search(query)
+    # hotel_data = tavily_search(query)
+    hotel_data = await run_tavily_mcp_search(query)
 
     return {
         "hotel_results": hotel_data,
@@ -522,22 +527,47 @@ graph.add_edge("final_agent", END)
 # Postgres Checkpointer
 database_url = get_databse_url()
 
-__conn = cast(
-    Connection[DictRow],
-    Connection.connect(
+
+travel_graph = None
+
+async def init_graph(database_url: str):
+    global travel_graph
+    
+    print("Initializing travel graph...")
+
+    __conn = cast(
+    AsyncConnection[DictRow],
+    await AsyncConnection.connect(
         database_url,
         autocommit=True,
         row_factory=dict_row,  # type: ignore[arg-type]
     ),
 )
 
-checkpointer = PostgresSaver(__conn)
-checkpointer.setup()
 
-travel_graph = graph.compile(checkpointer=checkpointer)
+    checkpointer = AsyncPostgresSaver(__conn)
+
+    await checkpointer.setup()
+
+    travel_graph = graph.compile(
+        checkpointer=checkpointer
+    )
+    
+    print("✅ Travel graph initialized:", travel_graph)
+
+# __conn = await AsyncConnection.connect(
+#     database_url,
+#     autocommit=True,
+#     row_factory=dict_row,
+# )
+
+# checkpointer = AsyncPostgresSaver(__conn)
+# await checkpointer.setup()
+
+# travel_graph = graph.compile(checkpointer=checkpointer)
 
 
-def run_travel_agent(user_input: str, thread_id: str | None=None):
+async def run_travel_agent(user_input: str, thread_id: str | None=None):
     if thread_id is None:
         thread_id = f"user_{uuid.uuid4().hex}"
 
@@ -546,8 +576,11 @@ def run_travel_agent(user_input: str, thread_id: str | None=None):
             "thread_id": thread_id
         }
     }
-
-    result = travel_graph.invoke(
+    
+    if travel_graph is None:
+        raise RuntimeError("Travel graph is not initialized")
+    
+    result = await travel_graph.ainvoke(
             {
                 "messages" : [HumanMessage(content=user_input)],
                 "user_query": user_input,
