@@ -22,7 +22,7 @@ TripMate - multi agent travel partner
 
 
 
-# ********** Converting TripMate from Synchronous to Asynchronous Architecture ************
+# ** Converting TripMate from Synchronous to Asynchronous Architecture **
 
 ## Overview
 
@@ -370,4 +370,4 @@ Response Returned
 
 The application is now following a fully asynchronous architecture from API layer → LangGraph → tools → database layer.
 
-## ******************************************************************************************
+## *****************************************************************

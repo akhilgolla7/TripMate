@@ -130,6 +130,20 @@ wheels = [
 ]
 
 [[package]]
+name = "aviationstack-mcp"
+version = "1.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mcp", extra = ["cli"] },
+    { name = "pydantic" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/19/8d/a723e15d5a893acfd66b600b2c72cf680b88874973446356f4a451da6056/aviationstack_mcp-1.6.0.tar.gz", hash = "sha256:a54c898a85b408dea1afe4513f2bdb8aa79a59be35d40216eba2ce9ac3b79f88", size = 33367, upload-time = "2026-02-15T18:22:21.096Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/85/d0/31006eaa6d9154c08d8a9d424bfae7146d67dba14490830118beadc1ea0c/aviationstack_mcp-1.6.0-py3-none-any.whl", hash = "sha256:85e4dced1f80fd593eb377697acc6a5deee4b54c35a117403335c08547438a01", size = 11811, upload-time = "2026-02-15T18:22:21.791Z" },
+]
+
+[[package]]
 name = "certifi"
 version = "2026.6.17"
 source = { registry = "https://pypi.org/simple" }
@@ -992,6 +1006,12 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e2/5e/d118fce19f87a2e7d8101c35c8ae0ec289098a4df0ff244cec23e415aca0/mcp-1.28.1-py3-none-any.whl", hash = "sha256:2726bca5e7193f61c5dde8b12500a6de2d9acf6d1a1c0be9e8c2e706437991df", size = 222620, upload-time = "2026-06-26T12:57:27.218Z" },
 ]
 
+[package.optional-dependencies]
+cli = [
+    { name = "python-dotenv" },
+    { name = "typer" },
+]
+
 [[package]]
 name = "mdurl"
 version = "0.1.2"
@@ -1764,6 +1784,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "airportsdata" },
+    { name = "aviationstack-mcp" },
     { name = "fastapi", extra = ["standard"] },
     { name = "jinja2" },
     { name = "langchain" },
@@ -1786,6 +1807,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "airportsdata", specifier = ">=20260315" },
+    { name = "aviationstack-mcp", specifier = ">=1.6.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.139.2" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "langchain", specifier = ">=1.3.14" },

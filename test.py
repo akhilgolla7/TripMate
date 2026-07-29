@@ -1,8 +1,8 @@
 import asyncio
-from mcp_client_test import get_all_tools, run_tavily_mcp_search
+from mcp_client import get_all_tools
 
 if __name__ == "__main__":
-    asyncio.run(run_tavily_mcp_search("what are the best hotels in India?"))
+    asyncio.run(get_all_tools())
 
 
 
